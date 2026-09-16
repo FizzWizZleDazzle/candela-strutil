@@ -1,11 +1,11 @@
 # strutil
 
-String helpers for candela programs that build SQL or lay out text.
+String helpers for candela programs.
 
-Use it when a program quotes identifiers or literals for a database, checks
-that a string is a number or an identifier, or trims, indents, and truncates
-text for display. The standard library's `std/string` covers padding, lines,
-and counting; this package covers what it does not.
+Use it when a program quotes a value or an identifier for another language,
+checks that a string is a number or an identifier, splits text into words,
+strips a prefix or suffix, changes case, or trims, indents, and truncates
+text for display. It has no dependencies and works the same everywhere.
 
 ## Quick start
 
