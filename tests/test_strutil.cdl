@@ -1,0 +1,44 @@
+// Exercises every helper. Run with `candela run tests/test_strutil.cdl`;
+// a failed check stops the run with the assertion that failed.
+import "std/assert" as assert;
+import "../src/main.cdl" as strutil;
+
+fn main() {
+    assert::assert_eq("name".quote_ident(), "\"name\"");
+    assert::assert_eq("a\"b".quote_ident(), "\"a\"\"b\"");
+    assert::assert_eq("it's".quote_literal(), "'it''s'");
+
+    assert::assert_eq("prefix_rest".strip_prefix("prefix_"), "rest");
+    assert::assert_eq("rest".strip_prefix("nope"), "rest");
+    assert::assert_eq("rest".strip_prefix(""), "rest");
+    assert::assert_eq("file.cdl".strip_suffix(".cdl"), "file");
+    assert::assert_eq("file".strip_suffix(".cdl"), "file");
+
+    assert::assert_true("123".is_digits());
+    assert::assert_false("12a".is_digits());
+    assert::assert_false("".is_digits());
+
+    assert::assert_true("user_id".is_identifier());
+    assert::assert_true("_x1".is_identifier());
+    assert::assert_false("1abc".is_identifier());
+    assert::assert_false("a-b".is_identifier());
+    assert::assert_false("".is_identifier());
+
+    assert::assert_eq("hello world".truncate(8, "..."), "hello...");
+    assert::assert_eq("hello".truncate(8, "..."), "hello");
+    assert::assert_eq("hello world".truncate(2, "..."), "..");
+
+    assert::assert_eq("  two   words\n".words(), ["two", "words"]);
+    assert::assert_eq("".words(), []);
+
+    assert::assert_eq("a\nb".indent("  "), "  a\n  b");
+    assert::assert_eq("camelCaseName".to_snake(), "camel_case_name");
+    assert::assert_eq("Pascal".to_snake(), "pascal");
+    assert::assert_eq("plain".to_snake(), "plain");
+
+    assert::assert_eq(strutil::placeholders(3), "?, ?, ?");
+    assert::assert_eq(strutil::placeholders(0), "");
+    assert::assert_eq(strutil::join_idents(["id", "name"]), "\"id\", \"name\"");
+
+    print("strutil ok");
+}

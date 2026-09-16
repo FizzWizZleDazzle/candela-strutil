@@ -1,0 +1,156 @@
+// strutil: string helpers for programs that build SQL or lay out text.
+//
+// The methods sit on `string` in an `impl` block, so a bare import brings
+// them in as `s.quote_ident()`; `as strutil` reaches the free functions as
+// `strutil::placeholders(3)`. Everything here is pure candela, so it compiles
+// into a .cdlb artifact and runs under candela-vm.
+
+impl string {
+    /// The string as a double-quoted SQL identifier, with any double quote
+    /// inside it doubled.
+    fn quote_ident(self) {
+        return "\"" + self.replace("\"", "\"\"") + "\"";
+    }
+
+    /// The string as a single-quoted SQL literal, with any single quote
+    /// inside it doubled.
+    fn quote_literal(self) {
+        return "'" + self.replace("'", "''") + "'";
+    }
+
+    /// The string without `prefix` at its start, or unchanged when it does
+    /// not start with it.
+    fn strip_prefix(self, prefix) {
+        if prefix.len() == 0 || !self.starts_with(prefix) {
+            return self;
+        }
+        return self[prefix.len()..self.len()];
+    }
+
+    /// The string without `suffix` at its end, or unchanged when it does not
+    /// end with it.
+    fn strip_suffix(self, suffix) {
+        if suffix.len() == 0 || !self.ends_with(suffix) {
+            return self;
+        }
+        return self[0..self.len() - suffix.len()];
+    }
+
+    /// True when the string is one or more ASCII digits and nothing else.
+    fn is_digits(self) {
+        if self.len() == 0 {
+            return false;
+        }
+        for i in range(self.len()) {
+            if !"0123456789".contains(self[i..i + 1]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /// True when the string is a plain identifier: ASCII letters, digits and
+    /// underscores, not starting with a digit.
+    fn is_identifier(self) {
+        if self.len() == 0 {
+            return false;
+        }
+        let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
+        let digits = "0123456789";
+        if !letters.contains(self[0..1]) {
+            return false;
+        }
+        for i in range(self.len()) {
+            let c = self[i..i + 1];
+            if !letters.contains(c) && !digits.contains(c) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /// The string cut to at most `width` characters. A cut string ends in
+    /// `ellipsis`, which counts toward the width.
+    fn truncate(self, width, ellipsis) {
+        if self.len() <= width {
+            return self;
+        }
+        if ellipsis.len() >= width {
+            return ellipsis[0..width];
+        }
+        return self[0..width - ellipsis.len()] + ellipsis;
+    }
+
+    /// The whitespace-separated words of the string, with no empty entries.
+    fn words(self) {
+        let out = [];
+        let current = "";
+        for i in range(self.len()) {
+            let c = self[i..i + 1];
+            if c == " " || c == "\t" || c == "\n" || c == "\r" {
+                if current.len() > 0 {
+                    out.push(current);
+                    current = "";
+                }
+            } else {
+                current = current + c;
+            }
+        }
+        if current.len() > 0 {
+            out.push(current);
+        }
+        return out;
+    }
+
+    /// The string with `prefix` in front of every line.
+    fn indent(self, prefix) {
+        let lines = self.split("\n");
+        let out = [];
+        for line in lines {
+            out.push(prefix + line);
+        }
+        return out.join("\n");
+    }
+
+    /// The string converted from camelCase or PascalCase to snake_case.
+    fn to_snake(self) {
+        let upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        let out = "";
+        for i in range(self.len()) {
+            let c = self[i..i + 1];
+            if upper.contains(c) {
+                if i > 0 {
+                    out = out + "_";
+                }
+                out = out + c.lowercase();
+            } else {
+                out = out + c;
+            }
+        }
+        return out;
+    }
+}
+
+/// `n` SQL placeholders joined for a values list: `placeholders(3)` is
+/// `?, ?, ?`. Zero gives an empty string.
+fn placeholders(n) {
+    let out = [];
+    for i in range(n) {
+        out.push("?");
+    }
+    return out.join(", ");
+}
+
+/// The names quoted as identifiers and joined with commas, ready for a
+/// column list.
+fn join_idents(names) {
+    let out = [];
+    for name in names {
+        out.push(name.quote_ident());
+    }
+    return out.join(", ");
+}
+
+fn main() {
+    print("strutil " + placeholders(3));
+}

@@ -1,0 +1,6 @@
+[package]
+name = "strutil"
+version = "0.1.0"
+description = "String helpers for building SQL and text: quoting, placeholders, identifiers, and trimming"
+
+[dependencies]
