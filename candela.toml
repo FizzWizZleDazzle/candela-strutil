@@ -1,6 +1,6 @@
 [package]
 name = "strutil"
-version = "0.1.0"
+version = "0.1.1"
 description = "String helpers: quoting, identifiers, prefixes and suffixes, words, indentation, case, and truncation"
 
 [dependencies]
